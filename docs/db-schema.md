@@ -1,6 +1,6 @@
 # MongoDB Schema — accounting_db.users
 
-兩個實作（Node.js 和 Python）共用同一個 collection。
+所有語言實作共用同一個 collection。
 
 ## Collection 位置
 
@@ -86,7 +86,7 @@ is_valid = pbkdf2_sha256.verify(password, stored_hash)
 ### 跨語言相容性
 
 Node.js 的 `crypto.pbkdf2Sync` 和 Python 的 `passlib.pbkdf2_sha256` 產生相同格式的 hash。  
-兩者都可以驗證對方產生的 hash，帳號在兩個系統間完全互通。
+只要遵循相同的 hash 格式，任何語言實作都可以驗證彼此產生的 hash，帳號在所有系統間完全互通。
 
 ## JWT Token 格式
 
@@ -103,7 +103,7 @@ Node.js 的 `crypto.pbkdf2Sync` 和 Python 的 `passlib.pbkdf2_sha256` 產生相
 
 - **Algorithm**：HS256
 - **Expiry**：7 天
-- **Secret**：`JWT_SECRET` 環境變數（兩個系統必須使用同一個值）
+- **Secret**：`JWT_SECRET` 環境變數（所有實作必須使用同一個值才能互通）
 
 ## 跨系統帳號互通
 

@@ -1,16 +1,18 @@
 # Auth System Reference — 登入系統知識庫
 
-同一套登入功能，用兩種語言 / 框架實作，共用同一個 MongoDB。
+同一套登入功能，以多種語言 / 框架實作，共用同一個 MongoDB。  
+目前已有 Node.js 與 Python 兩版，未來會持續新增其他語言的實作。
 
 ```
 auth-system-reference/
 ├── docs/
 │   └── db-schema.md        # users collection schema + hash 格式說明
 ├── node-express/           # Node.js + Express 實作（Port 3001）
-└── python-flask/           # Python + Flask 實作（Port 3002）
+├── python-flask/           # Python + Flask 實作（Port 3002）
+└── ...                     # 更多語言實作（陸續新增）
 ```
 
-## 兩種實作對照
+## 現有實作對照
 
 | 項目 | Node.js + Express | Python + Flask |
 |------|-------------------|----------------|
@@ -60,10 +62,12 @@ python app.py
 
 ## 帳號互通
 
-兩種實作共用 `accounting_db.users`，同一組帳號可以登入兩邊。  
-只要 `JWT_SECRET` 設定相同，任一系統發出的 JWT 也可在另一系統驗證。
+所有實作共用 `accounting_db.users`，同一組帳號可在任何一個實作登入。  
+只要各實作的 `JWT_SECRET` 設定相同，任一系統發出的 JWT 也可在其他系統驗證。
 
-詳細 schema 說明見 [`docs/db-schema.md`](docs/db-schema.md)。
+詳細 schema 說明見 [`docs/db-schema.md`](docs/db-schema.md)。  
+完整 API 使用說明（端點參考、cURL 範例、錯誤代碼）見 [`docs/usage.md`](docs/usage.md)。  
+後續拓展規劃（Port 分配、最小合約、新增 Checklist）見 [`docs/roadmap.md`](docs/roadmap.md)。
 
 ## 關鍵實作差異
 
