@@ -2,6 +2,7 @@
  * Auth System Reference — Node.js + Express 實作
  *
  * 端點：
+ *   POST /api/auth/register
  *   POST /api/auth/login
  *   POST /api/auth/logout
  *   POST /api/auth/forgot-password
@@ -74,10 +75,18 @@ const apiLimiter = rateLimit({
     message: '請求次數過多，請稍後再試。',
 });
 
+const registerLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: '註冊嘗試次數過多，請於 1 小時後再試。',
+});
+
 // ── 身份驗證中介軟體 ──────────────────────────────────────────
 // 不需要 token 的 auth 端點（登入、登出、忘記/重設密碼）
 const AUTH_PUBLIC_PATHS = new Set([
-    '/auth/login', '/auth/logout',
+    '/auth/register', '/auth/login', '/auth/logout',
     '/auth/forgot-password', '/auth/reset-password',
     '/auth/validate-password',
 ]);
@@ -130,6 +139,28 @@ function hashPasslibPbkdf2(password) {
     return `$pbkdf2-sha256$29000$${ab64encode(salt)}$${ab64encode(hash)}`;
 }
 
+// ── 輸入驗證 ──────────────────────────────────────────────────
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validatePasswordStrength(password, email = '', name = '') {
+    if (!password || password.length < 12)
+        return { valid: false, message: '密碼長度至少需要 12 個字元' };
+    if (!/[A-Z]/.test(password))
+        return { valid: false, message: '密碼需包含至少一個大寫字母' };
+    if (!/[a-z]/.test(password))
+        return { valid: false, message: '密碼需包含至少一個小寫字母' };
+    if (!/[0-9]/.test(password))
+        return { valid: false, message: '密碼需包含至少一個數字' };
+    if (!/[^A-Za-z0-9]/.test(password))
+        return { valid: false, message: '密碼需包含至少一個特殊字元' };
+    const lp = password.toLowerCase();
+    if (email && lp.includes(email.split('@')[0].toLowerCase()))
+        return { valid: false, message: '密碼不能包含 Email 帳號部分' };
+    if (name && name.length >= 3 && lp.includes(name.toLowerCase()))
+        return { valid: false, message: '密碼不能包含姓名' };
+    return { valid: true, message: '密碼強度足夠' };
+}
+
 // ── Email（忘記密碼）─────────────────────────────────────────
 function createMailTransporter() {
     if (!process.env.SMTP_USERNAME || !process.env.SMTP_PASSWORD) return null;
@@ -173,6 +204,52 @@ async function sendResetEmail(toEmail, resetUrl) {
 }
 
 // ── 路由：身份驗證 ────────────────────────────────────────────
+
+// POST /api/auth/register
+app.post('/api/auth/register', registerLimiter, async (req, res) => {
+    if (!usersCollection) return res.status(503).json({ message: '資料庫未連線' });
+    try {
+        const { email, password, name } = req.body || {};
+
+        if (!email || !password || !name)
+            return res.status(400).json({ message: 'email、password 和 name 不能為空' });
+
+        const normalizedEmail = email.trim().toLowerCase();
+        if (!EMAIL_REGEX.test(normalizedEmail))
+            return res.status(400).json({ message: 'Email 格式錯誤' });
+
+        const trimmedName = name.trim();
+        if (trimmedName.length === 0)
+            return res.status(400).json({ message: '名稱不能為空' });
+        if (trimmedName.length > 50)
+            return res.status(400).json({ message: '名稱過長（最多 50 字元）' });
+
+        const pwCheck = validatePasswordStrength(password, normalizedEmail, trimmedName);
+        if (!pwCheck.valid)
+            return res.status(400).json({ message: pwCheck.message });
+
+        const existing = await usersCollection.findOne({ email: normalizedEmail });
+        if (existing) return res.status(409).json({ message: '此 Email 已被註冊' });
+
+        const passwordHash = hashPasslibPbkdf2(password);
+        const now = new Date();
+        const result = await usersCollection.insertOne({
+            email: normalizedEmail,
+            password_hash: passwordHash,
+            name: trimmedName,
+            created_at: now,
+            last_login: null,
+            is_active: true,
+            email_verified: false,
+            password_last_updated: now,
+        });
+        console.log(`新用戶註冊: ${normalizedEmail}`);
+        res.status(201).json({ message: '註冊成功', user_id: String(result.insertedId) });
+    } catch (e) {
+        console.error('註冊失敗:', e);
+        res.status(500).json({ message: '註冊失敗，請稍後再試' });
+    }
+});
 
 // POST /api/auth/login
 app.post('/api/auth/login', authLimiter, async (req, res) => {

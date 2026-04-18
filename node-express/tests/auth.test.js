@@ -209,3 +209,46 @@ describe('POST /api/auth/reset-password', () => {
         expect([400, 503]).toContain(res.status);
     });
 });
+
+// ── Register ──────────────────────────────────────────────────
+
+describe('POST /api/auth/register', () => {
+    test('缺少所有欄位應回傳 400 或 503（無 DB）', async () => {
+        const res = await request(app)
+            .post('/api/auth/register')
+            .send({});
+        expect([400, 503]).toContain(res.status);
+    });
+
+    test('email 格式錯誤應回傳 400 或 503（無 DB）', async () => {
+        const res = await request(app)
+            .post('/api/auth/register')
+            .send({ email: 'not-an-email', password: 'ValidP@ss2026!', name: 'Test' });
+        expect([400, 503]).toContain(res.status);
+    });
+
+    test('密碼強度不足應回傳 400 或 503（無 DB）', async () => {
+        const res = await request(app)
+            .post('/api/auth/register')
+            .send({ email: 'newuser@example.com', password: 'weak', name: 'Test' });
+        expect([400, 503]).toContain(res.status);
+    });
+
+    test('名稱過長應回傳 400 或 503（無 DB）', async () => {
+        const res = await request(app)
+            .post('/api/auth/register')
+            .send({ email: 'newuser@example.com', password: 'ValidP@ss2026!', name: 'A'.repeat(51) });
+        expect([400, 503]).toContain(res.status);
+    });
+
+    test('成功註冊應回傳 201 或 503（無 DB）', async () => {
+        const res = await request(app)
+            .post('/api/auth/register')
+            .send({ email: 'brand-new@example.com', password: 'ValidP@ss2026!XyZ', name: 'New User' });
+        expect([201, 503]).toContain(res.status);
+        if (res.status === 201) {
+            expect(res.body.message).toBeDefined();
+            expect(res.body.user_id).toBeDefined();
+        }
+    });
+});
