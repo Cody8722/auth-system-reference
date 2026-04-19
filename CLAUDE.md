@@ -1,6 +1,4 @@
-# CLAUDE.md
-
-This file provides guidance to Claude when working with code in this repository.
+# CLAUDE.md — Auth System Reference
 
 ## 專案概述
 
@@ -9,21 +7,36 @@ This file provides guidance to Claude when working with code in this repository.
 
 ---
 
-## 操作規則
-
-- 禁止單獨使用 `cd`，優先使用相對路徑。
-- 禁止使用 `cd ... && <指令>`，直接用 `<指令> path/to/target`。
-- 避免複雜 Bash 組合：如需複雜操作，請分開多次執行。
-- 每個 bash 呼叫是獨立 session，不依賴上一條指令的環境變數。
-- 禁止使用 `sleep` 等待非同步任務；等待 GitHub Action 應改用 `gh run watch`。
-- 使用者明確要求刪除或移動檔案時，直接執行即可，無需再反問確認一次。
-- 修改檔案前必須先完整讀過，不靠假設。
-- 不刪除未觸及的程式碼、注解、TODO。
-- 不主動重構超出需求範圍的程式碼。
-- 遇到不確定的需求先問，不自行假設後執行。
-- 失敗時回報具體錯誤訊息與指令，不要空泛說「發生錯誤」。
-- 不可覆寫或修改現有的 `.env` 檔案；但可以新增 `.env.example` 或 `.env.template`。
-- 不可為了讓測試通過而修改測試邏輯，應修正程式碼本身。
+@~/.claude/rules/common/claude-md-guide.md
+@~/.claude/rules/common/development-workflow.md
+@~/.claude/rules/common/git-workflow.md
+@~/.claude/rules/common/coding-style.md
+@~/.claude/rules/common/security.md
+@~/.claude/rules/common/testing.md
+@~/.claude/rules/common/patterns.md
+@~/.claude/rules/common/performance.md
+@~/.claude/rules/common/agents.md
+@~/.claude/rules/common/hooks.md
+@~/.claude/rules/python/coding-style.md
+@~/.claude/rules/python/security.md
+@~/.claude/rules/python/testing.md
+@~/.claude/rules/python/patterns.md
+@~/.claude/rules/python/hooks.md
+@~/.claude/rules/typescript/coding-style.md
+@~/.claude/rules/typescript/security.md
+@~/.claude/rules/typescript/testing.md
+@~/.claude/rules/typescript/patterns.md
+@~/.claude/rules/typescript/hooks.md
+@~/.claude/rules/golang/coding-style.md
+@~/.claude/rules/golang/security.md
+@~/.claude/rules/golang/testing.md
+@~/.claude/rules/golang/patterns.md
+@~/.claude/rules/golang/hooks.md
+@~/.claude/rules/swift/coding-style.md
+@~/.claude/rules/swift/security.md
+@~/.claude/rules/swift/testing.md
+@~/.claude/rules/swift/patterns.md
+@~/.claude/rules/swift/hooks.md
 
 ## 向下兼容原則
 
@@ -55,7 +68,7 @@ This file provides guidance to Claude when working with code in this repository.
 
 每約 5 個相關變更，或一個功能階段完成後才 commit。**commit 完成後必須立即推送到遠端。**
 
-## Git 分支策略
+## 分支策略
 
 ```
 feature/* → develop → release
