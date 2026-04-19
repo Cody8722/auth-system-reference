@@ -95,15 +95,17 @@ def login():
         if not data:
             return jsonify({"error": "無效的請求資料"}), 400
 
-        email = data.get("email", "").strip().lower()
-        password = data.get("password", "")
+        if not isinstance(data.get("email"), str) or not isinstance(data.get("password"), str):
+            return jsonify({"error": "Email 和密碼不能為空"}), 400
+        email = data["email"].strip().lower()
+        password = data["password"]
 
         if not email or not password:
             return jsonify({"error": "Email 和密碼不能為空"}), 400
 
         if _is_locked_out(email):
             logger.warning(f"登入鎖定: {email}")
-            return jsonify({"error": "登入失敗次數過多，請 15 分鐘後再試"}), 429
+            return jsonify({"error": "Email 或密碼錯誤"}), 401
 
         user = db.users_collection.find_one({"email": email})
         if not user:
@@ -230,8 +232,10 @@ def reset_password():
         if not data:
             return jsonify({"error": "請提供 token 和新密碼"}), 400
 
-        token = data.get("token", "").strip()
-        new_password = data.get("new_password", "")
+        if not isinstance(data.get("token"), str) or not isinstance(data.get("new_password"), str):
+            return jsonify({"error": "請提供 token 和新密碼"}), 400
+        token = data["token"].strip()
+        new_password = data["new_password"]
 
         if not token or not new_password:
             return jsonify({"error": "請提供 token 和新密碼"}), 400

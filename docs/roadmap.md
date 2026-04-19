@@ -225,7 +225,38 @@ valid  = pbkdf2_sha256.verify(password, stored)   # 驗證
 
 ---
 
-## 6. 新增實作 Checklist
+## 6. 已知安全限制（實作前請閱讀）
+
+以下是本 repo 所有實作共有的**設計層面限制**，不屬於 bug，但開發者應知曉，並根據正式環境需求自行補強。
+
+### 密碼噴灑（Password Spraying）
+
+**問題：** Rate limit 與帳號鎖定均以單一 IP 或單一 email 為單位，無跨帳號的全域失敗計數。
+攻擊者對 N 個帳號各嘗試 1 次相同密碼，可永遠不觸發任何封鎖。
+
+**為何不在此修：** 最直覺的修法「全域 IP 失敗計數」在 NAT 環境（辦公室、學校、ISP CGNAT）
+會誤傷共用 IP 的合法用戶，副作用大於收益。
+
+**開發者可選的補強方案：**
+
+| 方案 | 效果 | 適用場景 |
+|------|------|---------|
+| CAPTCHA（N 次失敗後） | 高，阻擋自動化攻擊 | 面向一般大眾的服務 |
+| 多因子驗證（MFA/TOTP） | 極高，密碼洩漏也無效 | 高安全性需求 |
+| 漸進延遲（Exponential Backoff） | 中，拖慢攻擊速度 | 輕量補強 |
+| 異常偵測（Anomaly Detection） | 高，可識別噴灑模式 | 有 ML 基礎設施的環境 |
+
+### Rate Limit 使用 In-Memory 儲存
+
+**問題：** 兩個實作的 rate limit 與帳號鎖定均存在記憶體，server 重啟後全部清零。
+多進程 / 多實例部署時，各進程計數獨立，有效限制減半。
+
+**開發者補強方案：** 使用 Redis 作為共享儲存（`express-rate-limit` 有 `rate-limit-redis` 套件；
+Flask-Limiter 支援 `storage_uri="redis://..."`）。
+
+---
+
+## 7. 新增實作 Checklist
 
 新增一個語言實作時，依序確認以下項目：
 

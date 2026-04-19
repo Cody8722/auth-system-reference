@@ -19,7 +19,7 @@ Auth System Reference — Python + Flask 實作
 import logging
 import os
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
 
 import db
@@ -36,6 +36,7 @@ logger = logging.getLogger(__name__)
 # ── Flask App ──────────────────────────────────────────────────
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("JWT_SECRET", "dev-secret")
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024  # 16 KB，拒絕超大 body（回 413）
 
 CORS(app, resources={r"/api/*": {"origins": os.getenv("CORS_ORIGIN", "*")}})
 
@@ -47,6 +48,14 @@ db.init_db()
 
 # 註冊 Blueprint
 app.register_blueprint(auth_bp)
+
+
+# ── 請求大小保護 ──────────────────────────────────────────────
+@app.before_request
+def check_content_length():
+    limit = app.config.get("MAX_CONTENT_LENGTH")
+    if limit and request.content_length and request.content_length > limit:
+        return jsonify({"error": f"請求 body 過大，上限 {limit // 1024} KB"}), 413
 
 
 # ── 系統狀態 ──────────────────────────────────────────────────

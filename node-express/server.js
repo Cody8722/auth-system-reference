@@ -23,6 +23,7 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const rateLimit = require('express-rate-limit');
+const morgan = require('morgan');
 require('dotenv').config();
 
 // ── 設定 ──────────────────────────────────────────────────────
@@ -49,7 +50,8 @@ if (MONGODB_URI) {
 }
 
 // ── 中介軟體 ──────────────────────────────────────────────────
-app.set('trust proxy', 1);
+// trust proxy 故意不啟用：避免 X-Forwarded-For 偽造繞過 rate limit
+app.use(morgan('dev'));
 app.use(cors({
     origin: process.env.CORS_ORIGIN || '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -65,6 +67,7 @@ const authLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     message: '登入嘗試次數過多，請於 15 分鐘後再試。',
+    keyGenerator: (req) => req.socket.remoteAddress,
 });
 
 const apiLimiter = rateLimit({
@@ -256,6 +259,8 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
     if (!usersCollection) return res.status(503).json({ message: '資料庫未連線' });
     try {
         const { email, password } = req.body;
+        if (typeof email !== 'string' || typeof password !== 'string')
+            return res.status(400).json({ message: 'Email 和密碼不能為空' });
         if (!email || !password) return res.status(400).json({ message: 'Email 和密碼不能為空' });
 
         const user = await usersCollection.findOne({ email: email.trim().toLowerCase() });
@@ -315,6 +320,8 @@ app.post('/api/auth/reset-password', async (req, res) => {
     if (!usersCollection) return res.status(503).json({ message: '資料庫未連線' });
     try {
         const { token, new_password } = req.body;
+        if (typeof token !== 'string' || typeof new_password !== 'string')
+            return res.status(400).json({ message: '請提供 token 和新密碼' });
         if (!token || !new_password) return res.status(400).json({ message: '請提供 token 和新密碼' });
 
         const user = await usersCollection.findOne({ password_reset_token: token });

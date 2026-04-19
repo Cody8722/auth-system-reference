@@ -17,6 +17,7 @@
     "express-rate-limit": "^7.1.5",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.3.0",
+    "morgan": "^1.10.1",
     "nodemailer": "^6.9.8"
   },
   "devDependencies": {
@@ -26,8 +27,12 @@
   },
   "jest": {
     "rootDir": ".",
-    "testMatch": ["**/tests/**/*.test.js"],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": ["server.js"]
+    "collectCoverageFrom": [
+      "server.js"
+    ]
   }
 }
