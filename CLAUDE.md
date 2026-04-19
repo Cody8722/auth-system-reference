@@ -7,36 +7,36 @@
 
 ---
 
-@~/.claude/rules/common/claude-md-guide.md
-@~/.claude/rules/common/development-workflow.md
-@~/.claude/rules/common/git-workflow.md
-@~/.claude/rules/common/coding-style.md
-@~/.claude/rules/common/security.md
-@~/.claude/rules/common/testing.md
-@~/.claude/rules/common/patterns.md
-@~/.claude/rules/common/performance.md
-@~/.claude/rules/common/agents.md
-@~/.claude/rules/common/hooks.md
-@~/.claude/rules/python/coding-style.md
-@~/.claude/rules/python/security.md
-@~/.claude/rules/python/testing.md
-@~/.claude/rules/python/patterns.md
-@~/.claude/rules/python/hooks.md
-@~/.claude/rules/typescript/coding-style.md
-@~/.claude/rules/typescript/security.md
-@~/.claude/rules/typescript/testing.md
-@~/.claude/rules/typescript/patterns.md
-@~/.claude/rules/typescript/hooks.md
-@~/.claude/rules/golang/coding-style.md
-@~/.claude/rules/golang/security.md
-@~/.claude/rules/golang/testing.md
-@~/.claude/rules/golang/patterns.md
-@~/.claude/rules/golang/hooks.md
-@~/.claude/rules/swift/coding-style.md
-@~/.claude/rules/swift/security.md
-@~/.claude/rules/swift/testing.md
-@~/.claude/rules/swift/patterns.md
-@~/.claude/rules/swift/hooks.md
+@.claude/rules/common/claude-md-guide.md
+@.claude/rules/common/development-workflow.md
+@.claude/rules/common/git-workflow.md
+@.claude/rules/common/coding-style.md
+@.claude/rules/common/security.md
+@.claude/rules/common/testing.md
+@.claude/rules/common/patterns.md
+@.claude/rules/common/performance.md
+@.claude/rules/common/agents.md
+@.claude/rules/common/hooks.md
+@.claude/rules/python/coding-style.md
+@.claude/rules/python/security.md
+@.claude/rules/python/testing.md
+@.claude/rules/python/patterns.md
+@.claude/rules/python/hooks.md
+@.claude/rules/typescript/coding-style.md
+@.claude/rules/typescript/security.md
+@.claude/rules/typescript/testing.md
+@.claude/rules/typescript/patterns.md
+@.claude/rules/typescript/hooks.md
+@.claude/rules/golang/coding-style.md
+@.claude/rules/golang/security.md
+@.claude/rules/golang/testing.md
+@.claude/rules/golang/patterns.md
+@.claude/rules/golang/hooks.md
+@.claude/rules/swift/coding-style.md
+@.claude/rules/swift/security.md
+@.claude/rules/swift/testing.md
+@.claude/rules/swift/patterns.md
+@.claude/rules/swift/hooks.md
 
 ## 向下兼容原則
 
